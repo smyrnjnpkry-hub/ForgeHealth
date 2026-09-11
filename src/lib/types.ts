@@ -102,6 +102,7 @@ export type Settings = {
   timerShowAdjust: boolean;
   volume: number;
   notifyEnabled: boolean;
+  identity: string;
 };
 
 export type InAppAlert = {
@@ -143,6 +144,7 @@ export const DEFAULT_SETTINGS: Settings = {
   timerShowAdjust: true,
   volume: 0.75,
   notifyEnabled: false,
+  identity: "I am someone who starts, even when I do not feel like it.",
 };
 
 export const RING_HEX: Record<RingColor, string> = {
@@ -158,8 +160,6 @@ export const MOOD_META: Record<Mood, { emoji: string; label: string }> = {
   ok: { emoji: "😐", label: "Okay" },
   low: { emoji: "😔", label: "Low" },
 };
-
-// ForgeHealth extensions
 
 export type Account = {
   id: string;
@@ -193,7 +193,15 @@ export type RelapseEntry = {
   note?: string;
 };
 
-export type HabitType = "gym" | "hydration" | "cold_shower" | "meditation" | "learning" | "gratitude" | "custom";
+export type HabitType =
+  | "gym"
+  | "hydration"
+  | "cold_shower"
+  | "meditation"
+  | "learning"
+  | "gratitude"
+  | "start"
+  | "custom";
 
 export type Habit = {
   id: string;
@@ -204,6 +212,7 @@ export type Habit = {
   xpPerCompletion: number;
   enabled: boolean;
   createdAt: number;
+  cue?: string;
 };
 
 export type HabitCompletion = {
@@ -214,14 +223,22 @@ export type HabitCompletion = {
   count: number;
 };
 
-export type MoodEntryMood = "ecstatic" | "happy" | "good" | "okay" | "low" | "sad" | "distressed" | "anxious";
+export type MoodEntryMood =
+  | "ecstatic"
+  | "happy"
+  | "good"
+  | "okay"
+  | "low"
+  | "sad"
+  | "distressed"
+  | "anxious";
 
 export type MoodEntry = {
   id: string;
   date: string;
   timestamp: number;
   mood: MoodEntryMood;
-  intensity: number; // 1-10
+  intensity: number;
   tags: string[];
   note?: string;
   photoDataUrl?: string;
@@ -262,7 +279,10 @@ export const XP_LEVELS: XPLevel[] = [
   { level: 9, name: "Mythic", minXp: 5000, maxXp: 99999 },
 ];
 
-export const MOOD_ENTRY_META: Record<MoodEntryMood, { emoji: string; label: string; color: string }> = {
+export const MOOD_ENTRY_META: Record<
+  MoodEntryMood,
+  { emoji: string; label: string; color: string }
+> = {
   ecstatic: { emoji: "🤩", label: "Ecstatic", color: "#10b981" },
   happy: { emoji: "😊", label: "Happy", color: "#34d399" },
   good: { emoji: "🙂", label: "Good", color: "#6ee7b7" },
@@ -274,10 +294,111 @@ export const MOOD_ENTRY_META: Record<MoodEntryMood, { emoji: string; label: stri
 };
 
 export const DEFAULT_HABITS: Omit<Habit, "id" | "createdAt">[] = [
+  {
+    type: "start",
+    title: "Two-minute start",
+    emoji: "⚡",
+    targetPerDay: 1,
+    xpPerCompletion: 20,
+    enabled: true,
+    cue: "After I sit down to work",
+  },
   { type: "gym", title: "Workout", emoji: "💪", targetPerDay: 1, xpPerCompletion: 20, enabled: true },
-  { type: "hydration", title: "Hydration", emoji: "💧", targetPerDay: 8, xpPerCompletion: 2, enabled: true },
-  { type: "cold_shower", title: "Cold Shower", emoji: "🚿", targetPerDay: 1, xpPerCompletion: 15, enabled: true },
-  { type: "meditation", title: "Meditation", emoji: "🧘", targetPerDay: 1, xpPerCompletion: 25, enabled: true },
-  { type: "learning", title: "Learning", emoji: "📚", targetPerDay: 1, xpPerCompletion: 20, enabled: true },
-  { type: "gratitude", title: "Gratitude", emoji: "🙏", targetPerDay: 5, xpPerCompletion: 3, enabled: true },
+  {
+    type: "hydration",
+    title: "Hydration",
+    emoji: "💧",
+    targetPerDay: 8,
+    xpPerCompletion: 2,
+    enabled: true,
+  },
+  {
+    type: "cold_shower",
+    title: "Cold shower",
+    emoji: "🚿",
+    targetPerDay: 1,
+    xpPerCompletion: 15,
+    enabled: true,
+  },
+  {
+    type: "meditation",
+    title: "Meditation",
+    emoji: "🧘",
+    targetPerDay: 1,
+    xpPerCompletion: 25,
+    enabled: true,
+  },
+  {
+    type: "learning",
+    title: "Learning",
+    emoji: "📚",
+    targetPerDay: 1,
+    xpPerCompletion: 20,
+    enabled: true,
+  },
+  {
+    type: "gratitude",
+    title: "Gratitude",
+    emoji: "🙏",
+    targetPerDay: 5,
+    xpPerCompletion: 3,
+    enabled: true,
+  },
 ];
+
+export type AversionTag =
+  | "boring"
+  | "unclear"
+  | "too-big"
+  | "fear"
+  | "no-reward"
+  | "tired"
+  | "distracted";
+
+export type UnstickSession = {
+  id: string;
+  createdAt: number;
+  date: string;
+  task: string;
+  aversion: AversionTag;
+  firstAction: string;
+  reward: string;
+  started: boolean;
+  completed: boolean;
+  durationSec: number;
+};
+
+export type WoopCard = {
+  id: string;
+  createdAt: number;
+  wish: string;
+  outcome: string;
+  obstacle: string;
+  planIf: string;
+  planThen: string;
+};
+
+export type TinyRecipe = {
+  id: string;
+  createdAt: number;
+  anchor: string;
+  behavior: string;
+  celebration: string;
+  habitId?: string;
+  lastDoneDate: string | null;
+  doneCount: number;
+};
+
+export type AutomaticityRating = {
+  id: string;
+  habitId: string;
+  date: string;
+  score: number;
+};
+
+export type ProcrastinationStyle = "avoider" | "perfectionist" | "discounter" | "overwhelmed";
+
+export type ProcrastinationProfile = {
+  style: ProcrastinationStyle;
+  answeredAt: number;
+};

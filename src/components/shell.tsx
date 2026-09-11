@@ -5,7 +5,7 @@ import { useAppStore } from "@/lib/store";
 import { currentStreak, plantStage } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bell, Compass, House, User, Watch } from "lucide-react";
+import { BarChart3, Bell, Compass, Flame, House, User } from "lucide-react";
 import { useEffect } from "react";
 import { hydrateStore } from "@/lib/store";
 import { setMasterVolume, unlockAudio } from "@/lib/audio";
@@ -14,9 +14,9 @@ import { unlockTts } from "@/lib/tts";
 const TABS = [
   { to: "/", label: "Home", icon: House },
   { to: "/habits", label: "Habits", icon: BarChart3 },
+  { to: "/forge", label: "Forge", icon: Flame },
   { to: "/challenge", label: "Challenge", icon: Compass },
   { to: "/mood", label: "Mood", icon: Bell },
-  { to: "/watch", label: "Watch", icon: Watch },
   { to: "/you", label: "You", icon: User },
 ] as const;
 
@@ -145,11 +145,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       active ? "text-fg" : "text-faint",
                     )}
                   >
-                    {tab.to === "/challenge" && tab.icon ? (
-                      <tab.icon className="size-5" strokeWidth={active ? 2.4 : 2} />
-                    ) : (
-                      <tab.icon className="size-5" strokeWidth={active ? 2.4 : 2} />
-                    )}
+                    <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
                     {tab.label}
                   </Link>
                 );

@@ -1,9 +1,11 @@
 import { Button, Card } from "@/components/ui";
 import { useAppStore } from "@/lib/store";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { todayKey } from "@/lib/utils";
+import { automaticityEstimate } from "@/lib/science";
+import { habitDayCount } from "@/lib/stats";
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, Square, Heart } from "lucide-react";
+import { Flame, Play, Pause, Square, Heart } from "lucide-react";
 
 export const Route = createFileRoute("/habits")({ component: Habits });
 
@@ -69,7 +71,12 @@ function Habits() {
   return (
     <main className="px-5 pt-6 pb-20">
       <h1 className="text-2xl font-semibold tracking-tight">Habits</h1>
-      <p className="mt-1 text-sm text-muted">Track daily wins, earn XP</p>
+      <p className="mt-1 text-sm text-muted">
+        Repetition in the same context. One miss does not flatten the curve.
+      </p>
+      <Link to="/forge" className="mt-4 flex items-center gap-2 text-sm font-medium text-mint">
+        <Flame className="size-4" /> Unstick a stalled start
+      </Link>
 
       <div className="mt-6 space-y-3">
         {habits.length === 0 ? (
@@ -82,6 +89,8 @@ function Habits() {
             const completedCount = todayCompletion?.count ?? 0;
             const isDone = completedCount >= habit.targetPerDay;
             const progressPct = Math.min(100, (completedCount / habit.targetPerDay) * 100);
+            const days = habitDayCount(habitCompletions, habit.id);
+            const auto = automaticityEstimate(days);
 
             return (
               <Card key={habit.id} className="p-4">
@@ -93,7 +102,11 @@ function Habits() {
                     <div className="flex-1">
                       <div className="font-medium">{habit.title}</div>
                       <div className="text-xs text-muted">
-                        {completedCount}/{habit.targetPerDay} · +{habit.xpPerCompletion}xp each
+                        {completedCount}/{habit.targetPerDay} · +{habit.xpPerCompletion}xp
+                        {habit.cue ? ` · ${habit.cue}` : ""}
+                      </div>
+                      <div className="mt-1 text-xs text-faint">
+                        {days} day{days === 1 ? "" : "s"} · {auto.label}
                       </div>
                     </div>
                   </div>

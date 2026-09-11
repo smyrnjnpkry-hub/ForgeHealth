@@ -21,8 +21,14 @@ import type {
   MoodEntry,
   GratitudeEntry,
   MonsterBoss,
+  UnstickSession,
+  WoopCard,
+  TinyRecipe,
+  AutomaticityRating,
+  ProcrastinationProfile,
+  AversionTag,
+  ProcrastinationStyle,
 } from "@/lib/types";
-import type { WatchImportResult } from "@/lib/samsung-health-import";
 import { DEFAULT_SETTINGS, DEFAULT_HABITS } from "@/lib/types";
 import { TEMPLATES } from "@/lib/templates";
 import { todayKey, uid } from "@/lib/utils";
@@ -47,8 +53,11 @@ type PersistShape = {
   moodEntries: MoodEntry[];
   gratitudeEntries: GratitudeEntry[];
   monster: MonsterBoss | null;
-  // Watch import
-  watchImport: WatchImportResult | null;
+  unsticks: UnstickSession[];
+  woops: WoopCard[];
+  recipes: TinyRecipe[];
+  autoRatings: AutomaticityRating[];
+  procrastination: ProcrastinationProfile | null;
 };
 
 type AppState = PersistShape & {
@@ -98,9 +107,21 @@ type AppState = PersistShape & {
   addGratitude: (text: string) => void;
   spawnMonster: () => void;
   damageMonster: (damage: number) => void;
-  // Watch import actions
-  setWatchImport: (data: WatchImportResult) => void;
-  clearWatchImport: () => void;
+  ensureDefaultHabits: () => void;
+  saveUnstick: (u: {
+    task: string;
+    aversion: AversionTag;
+    firstAction: string;
+    reward: string;
+  }) => string;
+  finishUnstick: (id: string, completed: boolean, durationSec: number) => void;
+  addWoop: (w: Omit<WoopCard, "id" | "createdAt">) => void;
+  deleteWoop: (id: string) => void;
+  addRecipe: (r: Omit<TinyRecipe, "id" | "createdAt" | "lastDoneDate" | "doneCount">) => void;
+  completeRecipe: (id: string) => void;
+  deleteRecipe: (id: string) => void;
+  rateAutomaticity: (habitId: string, score: number) => void;
+  setProcrastination: (style: ProcrastinationStyle) => void;
 };
 
 function checkKey(date: string, routineId: string) {
@@ -169,7 +190,11 @@ export const useAppStore = create<AppState>()(
       moodEntries: [],
       gratitudeEntries: [],
       monster: null,
-      watchImport: null,
+      unsticks: [],
+      woops: [],
+      recipes: [],
+      autoRatings: [],
+      procrastination: null,
 
       setHydrated: () => set({ hydrated: true }),
 
@@ -513,6 +538,24 @@ export const useAppStore = create<AppState>()(
             ...s.routines.filter((r) => !r.id.startsWith("seed-")),
           ],
           reminders: s.reminders.length ? s.reminders : seedReminders(),
+          habits:
+            s.habits.length > 0
+              ? s.habits
+              : DEFAULT_HABITS.map((h) => ({ ...h, id: uid(), createdAt: Date.now() })),
+          recipes:
+            s.recipes.length > 0
+              ? s.recipes
+              : [
+                  {
+                    id: uid(),
+                    createdAt: Date.now(),
+                    anchor: "I sit at my desk",
+                    behavior: "open the stuck task for two minutes",
+                    celebration: "say 'started'",
+                    lastDoneDate: null,
+                    doneCount: 0,
+                  },
+                ],
           hasSeeded: true,
           settings: {
             ...s.settings,
@@ -571,7 +614,13 @@ export const useAppStore = create<AppState>()(
           xp: 0,
           willpower: 100,
         };
-        set({ challenge, habits: DEFAULT_HABITS.map((h) => ({ ...h, id: uid(), createdAt: Date.now() })) });
+        set((s) => ({
+          challenge,
+          habits:
+            s.habits.length > 0
+              ? s.habits
+              : DEFAULT_HABITS.map((h) => ({ ...h, id: uid(), createdAt: Date.now() })),
+        }));
         if (typeof BroadcastChannel !== "undefined") {
           const bc = new BroadcastChannel("forgehealth-challenge");
           bc.postMessage({ 
@@ -784,12 +833,92 @@ export const useAppStore = create<AppState>()(
         });
       },
 
-      setWatchImport: (data) => {
-        set({ watchImport: data });
+      ensureDefaultHabits: () => {
+        if (get().habits.length > 0) return;
+        set({
+          habits: DEFAULT_HABITS.map((h) => ({ ...h, id: uid(), createdAt: Date.now() })),
+        });
       },
 
-      clearWatchImport: () => {
-        set({ watchImport: null });
+      saveUnstick: ({ task, aversion, firstAction, reward }) => {
+        const session: UnstickSession = {
+          id: uid(),
+          createdAt: Date.now(),
+          date: todayKey(),
+          task: task.trim(),
+          aversion,
+          firstAction: firstAction.trim(),
+          reward: reward.trim(),
+          started: true,
+          completed: false,
+          durationSec: 0,
+        };
+        set((s) => ({ unsticks: [session, ...s.unsticks] }));
+        return session.id;
+      },
+
+      finishUnstick: (id, completed, durationSec) => {
+        set((s) => ({
+          unsticks: s.unsticks.map((u) =>
+            u.id === id ? { ...u, completed, durationSec, started: true } : u,
+          ),
+        }));
+        if (completed) {
+          get().addXp(20);
+          const startHabit = get().habits.find((h) => h.type === "start" && h.enabled);
+          if (startHabit) get().completeHabit(startHabit.id);
+        }
+      },
+
+      addWoop: (w) => {
+        const card: WoopCard = { ...w, id: uid(), createdAt: Date.now() };
+        set((s) => ({ woops: [card, ...s.woops] }));
+      },
+
+      deleteWoop: (id) => set((s) => ({ woops: s.woops.filter((w) => w.id !== id) })),
+
+      addRecipe: (r) => {
+        const recipe: TinyRecipe = {
+          ...r,
+          id: uid(),
+          createdAt: Date.now(),
+          lastDoneDate: null,
+          doneCount: 0,
+        };
+        set((s) => ({ recipes: [recipe, ...s.recipes] }));
+      },
+
+      completeRecipe: (id) => {
+        const today = todayKey();
+        set((s) => ({
+          recipes: s.recipes.map((r) =>
+            r.id === id && r.lastDoneDate !== today
+              ? { ...r, lastDoneDate: today, doneCount: r.doneCount + 1 }
+              : r,
+          ),
+        }));
+        get().addXp(10);
+      },
+
+      deleteRecipe: (id) => set((s) => ({ recipes: s.recipes.filter((r) => r.id !== id) })),
+
+      rateAutomaticity: (habitId, score) => {
+        const rating: AutomaticityRating = {
+          id: uid(),
+          habitId,
+          date: todayKey(),
+          score: Math.max(1, Math.min(7, score)),
+        };
+        set((s) => ({
+          autoRatings: [
+            rating,
+            ...s.autoRatings.filter((a) => !(a.habitId === habitId && a.date === rating.date)),
+          ],
+        }));
+      },
+
+      setProcrastination: (style) => {
+        set({ procrastination: { style, answeredAt: Date.now() } });
       },
     }),
     {
@@ -813,7 +942,11 @@ export const useAppStore = create<AppState>()(
         moodEntries: s.moodEntries,
         gratitudeEntries: s.gratitudeEntries,
         monster: s.monster,
-        watchImport: s.watchImport,
+        unsticks: s.unsticks,
+        woops: s.woops,
+        recipes: s.recipes,
+        autoRatings: s.autoRatings,
+        procrastination: s.procrastination,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<PersistShape>;

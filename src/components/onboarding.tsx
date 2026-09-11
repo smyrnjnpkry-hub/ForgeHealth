@@ -53,7 +53,7 @@ export function Onboarding() {
             <div className="mb-4 rounded-3xl bg-sunken p-4">
               <Plant level={2} size={96} />
             </div>
-            <p className="text-sm font-medium text-mint">Welcome to Dayring</p>
+            <p className="text-sm font-medium text-mint">Welcome to ForgeHealth</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">
               Name your plant
             </h1>

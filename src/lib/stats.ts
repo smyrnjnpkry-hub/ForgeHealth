@@ -1,4 +1,4 @@
-import type { Completion, Mood, Routine } from "@/lib/types";
+import type { Completion, HabitCompletion, Mood, Routine } from "@/lib/types";
 import { addMinutes, todayKey } from "@/lib/utils";
 
 export function totalSec(routine: Routine) {
@@ -140,4 +140,12 @@ export function moodSummary(completions: Completion[]) {
     n += 1;
   }
   return { counts, n };
+}
+
+export function habitDayCount(completions: HabitCompletion[], habitId: string) {
+  const set = new Set<string>();
+  for (const c of completions) {
+    if (c.habitId === habitId && c.count > 0) set.add(c.date);
+  }
+  return set.size;
 }

@@ -1,9 +1,10 @@
 import { Button, Card, Field, Input, Switch } from "@/components/ui";
 import { NOISE_LABELS, SOUND_LABELS, playSound, startNoise, stopNoise } from "@/lib/audio";
+import { STYLE_META } from "@/lib/science";
 import { useAppStore } from "@/lib/store";
 import type { NoiseId, RingColor, SoundId } from "@/lib/types";
 import { RING_HEX } from "@/lib/types";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/you")({ component: You });
@@ -14,6 +15,7 @@ function You() {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
   const routines = useAppStore((s) => s.routines);
+  const style = useAppStore((s) => s.procrastination);
 
   useEffect(() => () => stopNoise(), []);
 
@@ -46,6 +48,15 @@ function You() {
             onChange={(e) => update({ plantName: e.target.value })}
           />
         </Field>
+        <div className="py-3">
+          <div className="mb-1 text-sm font-medium">Identity</div>
+          <p className="mb-2 text-xs text-muted">Said when mood is low. Streaks are a report, not a hostage.</p>
+          <Input
+            value={settings.identity}
+            placeholder="I am someone who starts"
+            onChange={(e) => update({ identity: e.target.value })}
+          />
+        </div>
         <Field label="Dark mode" hint="Matches the night wind-down energy.">
           <Switch
             checked={settings.theme === "dark"}
@@ -174,13 +185,31 @@ function You() {
       <Card className="px-4 py-3">
         <Field
           label="Browser alerts"
-          hint="Fires while Dayring is open. Allow once."
+          hint="Fires while ForgeHealth is open. Allow once."
         >
           <Button size="sm" variant="outline" onClick={() => void enableNotify()}>
             {settings.notifyEnabled ? "Allowed" : "Allow"}
           </Button>
         </Field>
       </Card>
+
+      {style ? (
+        <Card className="mt-5 p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Stall style</div>
+          <div className="mt-1 font-semibold">{STYLE_META[style.style].label}</div>
+          <p className="mt-1 text-sm text-muted">{STYLE_META[style.style].move}</p>
+          <Link to="/forge" className="mt-2 inline-block text-sm font-medium text-mint">
+            Open the Forge lab
+          </Link>
+        </Card>
+      ) : (
+        <Card className="mt-5 p-4">
+          <p className="text-sm">Take a 4-question stall quiz. Not a diagnosis — a default move.</p>
+          <Link to="/forge" className="mt-2 inline-block text-sm font-medium text-mint">
+            Open Forge
+          </Link>
+        </Card>
+      )}
 
       <p className="mt-8 text-center text-xs text-faint">
         {routines.length} routines on this device · saved locally

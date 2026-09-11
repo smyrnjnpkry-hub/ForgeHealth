@@ -3,6 +3,7 @@ import { useAppStore } from "@/lib/store";
 import { XP_LEVELS } from "@/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { DEMO_ACCOUNTS, buddyStorageKey } from "@/lib/accounts";
 import { Swords, Shield, TrendingUp, TrendingDown } from "lucide-react";
 
 export const Route = createFileRoute("/challenge")({ component: Challenge });
@@ -33,12 +34,12 @@ function Challenge() {
     const bc = new BroadcastChannel("forgehealth-challenge");
     bc.onmessage = (e) => {
       if (e.data.type === "check-in" || e.data.type === "challenge-started") {
-        const buddyKey = account.id === "soumya" ? "forgehealth-buddy-jabir" : "forgehealth-buddy-soumya";
+        const buddyKey = buddyStorageKey(account.id);
         const stored = localStorage.getItem(buddyKey);
         if (stored) setBuddyProgress(JSON.parse(stored));
       }
     };
-    const buddyKey = account.id === "soumya" ? "forgehealth-buddy-jabir" : "forgehealth-buddy-soumya";
+    const buddyKey = buddyStorageKey(account.id);
     const stored = localStorage.getItem(buddyKey);
     if (stored) setBuddyProgress(JSON.parse(stored));
     return () => bc.close();
@@ -74,8 +75,24 @@ function Challenge() {
         <Card className="mt-6 p-6">
           <h2 className="text-lg font-semibold mb-4">Choose Account</h2>
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start" onClick={() => { setAccount({ id: "soumya", email: "smyrnjnpkry@gmail.com", displayName: "Soumya", createdAt: Date.now() }); setSelectedEmail("soumya"); }}>Soumya (smyrnjnpkry@gmail.com)</Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => { setAccount({ id: "jabir", email: "mdjabirkhan6786@gmail.com", displayName: "Jabir", createdAt: Date.now() }); setSelectedEmail("jabir"); }}>Jabir (mdjabirkhan6786@gmail.com)</Button>
+            {DEMO_ACCOUNTS.map((a) => (
+              <Button
+                key={a.id}
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  setAccount({
+                    id: a.id,
+                    email: a.email,
+                    displayName: a.displayName,
+                    createdAt: Date.now(),
+                  });
+                  setSelectedEmail(a.id);
+                }}
+              >
+                {a.displayName} ({a.email})
+              </Button>
+            ))}
           </div>
         </Card>
       </main>
@@ -101,7 +118,7 @@ function Challenge() {
         <Card className="mt-6 p-6 space-y-4">
           <div><label className="block text-sm font-medium mb-3">Duration</label><div className="grid grid-cols-2 gap-2">{[7, 30, 60, 90].map((d) => (<button key={d} type="button" onClick={() => setDuration(d)} className={`p-3 rounded-xl border-2 font-medium transition-all ${duration === d ? "border-mint bg-mint/10" : "border-border"}`}>{d} days</button>))}</div></div>
           <div><label className="block text-sm font-medium mb-2">Custom Duration (days)</label><input type="number" min="1" max="365" className="w-full h-11 rounded-xl border border-border bg-surface px-3 text-sm" placeholder="e.g. 100" value={customDuration} onChange={(e) => setCustomDuration(e.target.value)} /></div>
-          <div><label className="block text-sm font-medium mb-2">Buddy Email (optional)</label><input type="email" className="w-full h-11 rounded-xl border border-border bg-surface px-3 text-sm" placeholder={selectedEmail === "soumya" ? "mdjabirkhan6786@gmail.com" : "smyrnjnpkry@gmail.com"} value={buddyEmail} onChange={(e) => setBuddyEmail(e.target.value)} /></div>
+          <div><label className="block text-sm font-medium mb-2">Buddy Email (optional)</label><input type="email" className="w-full h-11 rounded-xl border border-border bg-surface px-3 text-sm" placeholder={selectedEmail === "soumya" ? "sutapanahak23@gmail.com" : "smyrnjnpkry@gmail.com"} value={buddyEmail} onChange={(e) => setBuddyEmail(e.target.value)} /></div>
           <Button variant="sun" className="w-full" onClick={() => { const days = customDuration ? parseInt(customDuration, 10) : duration; if (days > 0 && days <= 365) startChallenge(days, buddyEmail || undefined); }}>Start {customDuration || duration}-day challenge</Button>
         </Card>
       </main>

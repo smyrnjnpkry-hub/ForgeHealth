@@ -6,7 +6,7 @@ import { Shell, StoreBoot } from "@/components/shell";
 import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Dayring";
+const APP_NAME = "ForgeHealth";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#f5c400" },
       {
         name: "description",
-        content: "Timed routines, voice cues, and reminders that walk you through every step.",
+        content: "Start small. Unstick without shame. Build habits that become automatic.",
       },
     ],
     links: [

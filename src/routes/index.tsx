@@ -1,11 +1,12 @@
 import { Plant } from "@/components/plant";
 import { Button, Card } from "@/components/ui";
 import { useNow } from "@/hooks/use-now";
+import { STYLE_META } from "@/lib/science";
 import { useAppStore } from "@/lib/store";
 import { currentStreak, dayCount, isScheduledToday, plantStage, totalSec } from "@/lib/stats";
 import { cn, formatDuration, greeting, todayKey } from "@/lib/utils";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Play, Plus, TrendingUp } from "lucide-react";
+import { Flame, Play, Plus, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -15,10 +16,14 @@ function Home() {
   const completions = useAppStore((s) => s.completions);
   const plantName = useAppStore((s) => s.settings.plantName || "Sprout");
   const displayName = useAppStore((s) => s.settings.displayName);
+  const identity = useAppStore((s) => s.settings.identity);
   const challenge = useAppStore((s) => s.challenge);
   const habits = useAppStore((s) => s.habits);
   const habitCompletions = useAppStore((s) => s.habitCompletions);
+  const recipes = useAppStore((s) => s.recipes);
+  const style = useAppStore((s) => s.procrastination?.style);
   const startRun = useAppStore((s) => s.startRun);
+  const completeRecipe = useAppStore((s) => s.completeRecipe);
   const navigate = useNavigate();
   const d = new Date(now);
   const date = todayKey(d);
@@ -34,6 +39,7 @@ function Home() {
     return completion && completion.count >= h.targetPerDay;
   });
   const greet = displayName ? `${greeting(d)}, ${displayName.split(" ")[0]}` : greeting(d);
+  const openRecipes = recipes.filter((r) => r.lastDoneDate !== date).slice(0, 3);
 
   return (
     <main className="px-5 pt-6 pb-8">
@@ -42,21 +48,52 @@ function Home() {
         <h1 className="text-2xl font-semibold tracking-tight">
           {d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
         </h1>
+        {identity ? <p className="mt-1 text-sm text-muted">{identity}</p> : null}
       </header>
+
+      <Link to="/forge">
+        <Card className="mb-5 p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-sun">
+              <Flame className="size-6 text-sun-ink" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-lg font-semibold tracking-tight">Stuck? Unstick in 2 minutes</div>
+              <p className="mt-1 text-sm text-muted">
+                {style ? STYLE_META[style].move : "Label the stall, cut a slice, start ugly."}
+              </p>
+            </div>
+          </div>
+        </Card>
+      </Link>
 
       <Card className="mb-6 p-5">
         <div className="flex items-center justify-around">
-          <div className="text-center"><Link to="/challenge"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - (challenge?.currentStreak || 0) / 30)}`} className="text-mint transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{challenge?.currentStreak || 0}</div></div><div className="text-xs font-medium">Streak</div></Link></div>
-          <div className="text-center"><Link to="/habits"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - completedHabits.length / Math.max(1, todayHabits.length))}`} className="text-sun transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{completedHabits.length}</div></div><div className="text-xs font-medium">Habits</div></Link></div>
-          <div className="text-center"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - doneCount / Math.max(1, todayRoutines.length))}`} className="text-sky transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{doneCount}</div></div><div className="text-xs font-medium">Routines</div></div>
+          <div className="text-center"><Link to="/challenge"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - (challenge?.currentStreak || 0) / 30)}`} className="text-mint transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold tabular-nums">{challenge?.currentStreak || 0}</div></div><div className="text-xs font-medium">Streak</div></Link></div>
+          <div className="text-center"><Link to="/habits"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - completedHabits.length / Math.max(1, todayHabits.length))}`} className="text-sun transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold tabular-nums">{completedHabits.length}</div></div><div className="text-xs font-medium">Habits</div></Link></div>
+          <div className="text-center"><div className="relative mx-auto mb-2 size-16"><svg className="size-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-sunken" /><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - doneCount / Math.max(1, todayRoutines.length))}`} className="text-sky transition-all duration-500" strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center text-lg font-bold tabular-nums">{doneCount}</div></div><div className="text-xs font-medium">Routines</div></div>
         </div>
       </Card>
 
       <Card className="mb-6 flex overflow-hidden"><div className="flex flex-1 items-center gap-3 p-4"><Plant level={plant.level} size={56} /><div><div className="text-xs font-medium text-muted">{plantName} · D+{dPlus || 0}</div><div className="text-lg font-semibold">{plant.name}</div><p className="text-sm text-muted">{doneCount}/{todayRoutines.length || 0} routines today</p></div></div></Card>
 
-      {challenge && (<Link to="/challenge"><Card className="mb-6 p-4 flex items-center justify-between hover:bg-sunken/30 transition-colors"><div className="flex items-center gap-3"><div className="size-12 rounded-2xl bg-mint/10 flex items-center justify-center text-2xl">💪</div><div><div className="font-semibold">Challenge Active</div><div className="text-xs text-muted">{challenge.currentStreak} day streak · {challenge.xp} XP</div></div></div><TrendingUp className="size-5 text-mint" /></Card></Link>)}
+      {openRecipes.length > 0 ? (
+        <Card className="mb-6 p-4">
+          <div className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Tiny recipes</div>
+          <div className="space-y-2">
+            {openRecipes.map((r) => (
+              <div key={r.id} className="flex items-center gap-2">
+                <p className="min-w-0 flex-1 text-sm">After {r.anchor}, {r.behavior}</p>
+                <Button size="sm" variant="soft" onClick={() => completeRecipe(r.id)}>Did it</Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
 
-      {todayRoutines.length === 0 ? (<Card className="p-8 text-center"><div className="mb-3 text-4xl">☀️</div><p className="mb-1 text-sm font-medium">No routines scheduled today</p><p className="mb-4 text-sm text-muted">Browse templates or create your own</p><Link to="/explore"><Button variant="outline" size="sm"><Plus className="size-4" />Explore</Button></Link></Card>) : (<div className="space-y-3"><h2 className="text-sm font-semibold tracking-wide text-muted uppercase">Today's Routines</h2>{todayRoutines.slice(0, 5).map((r) => { const done = doneIds.has(r.id); return (<Link key={r.id} to="/routine/$id" params={{ id: r.id }}><Card className={cn("p-4 transition-colors hover:bg-sunken/50", done && "opacity-60")}><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1"><span className="text-lg">{r.emoji}</span><span className="font-semibold">{r.name}</span></div><div className="text-xs text-muted">{r.steps.length} steps · {formatDuration(totalSec(r))}</div></div>{!done && (<Button size="icon" variant="solid" onClick={(e) => { e.preventDefault(); startRun(r.id); void navigate({ to: "/run/$id", params: { id: r.id } }); }}><Play className="size-4 fill-current" /></Button>)}</div>{done && (<p className="mt-2 text-xs font-medium text-mint">✓ Finished today</p>)}</Card></Link>); })}</div>)}
+      {challenge && (<Link to="/challenge"><Card className="mb-6 p-4 flex items-center justify-between hover:bg-sunken/30 transition-colors"><div className="flex items-center gap-3"><div className="size-12 rounded-2xl bg-mint/10 flex items-center justify-center"><TrendingUp className="size-5 text-mint" /></div><div><div className="font-semibold">Challenge Active</div><div className="text-xs text-muted">{challenge.currentStreak} day streak · {challenge.xp} XP</div></div></div><TrendingUp className="size-5 text-mint" /></Card></Link>)}
+
+      {todayRoutines.length === 0 ? (<Card className="p-8 text-center"><p className="mb-1 text-sm font-medium">No routines scheduled today</p><p className="mb-4 text-sm text-muted">Browse templates or create your own</p><Link to="/explore"><Button variant="outline" size="sm"><Plus className="size-4" />Explore</Button></Link></Card>) : (<div className="space-y-3"><h2 className="text-sm font-semibold tracking-wide text-muted uppercase">Today's Routines</h2>{todayRoutines.slice(0, 5).map((r) => { const done = doneIds.has(r.id); return (<Link key={r.id} to="/routine/$id" params={{ id: r.id }}><Card className={cn("p-4 transition-colors hover:bg-sunken/50", done && "opacity-60")}><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1"><span className="text-lg">{r.emoji}</span><span className="font-semibold">{r.name}</span></div><div className="text-xs text-muted">{r.steps.length} steps · {formatDuration(totalSec(r))}</div></div>{!done && (<Button size="icon" variant="solid" onClick={(e) => { e.preventDefault(); startRun(r.id); void navigate({ to: "/run/$id", params: { id: r.id } }); }}><Play className="size-4 fill-current" /></Button>)}</div>{done && (<p className="mt-2 text-xs font-medium text-mint">Finished today</p>)}</Card></Link>); })}</div>)}
 
       <div className="mt-6 flex justify-center gap-3"><Link to="/explore"><Button variant="outline" size="md"><Plus className="size-4" />Browse</Button></Link><Link to="/stats"><Button variant="outline" size="md">Stats</Button></Link></div>
     </main>
