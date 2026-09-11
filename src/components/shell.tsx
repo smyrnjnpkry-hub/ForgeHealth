@@ -5,7 +5,7 @@ import { useAppStore } from "@/lib/store";
 import { currentStreak, plantStage } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bell, Compass, House, User } from "lucide-react";
+import { BarChart3, Bell, Compass, House, User, Watch } from "lucide-react";
 import { useEffect } from "react";
 import { hydrateStore } from "@/lib/store";
 import { setMasterVolume, unlockAudio } from "@/lib/audio";
@@ -16,6 +16,7 @@ const TABS = [
   { to: "/habits", label: "Habits", icon: BarChart3 },
   { to: "/challenge", label: "Challenge", icon: Compass },
   { to: "/mood", label: "Mood", icon: Bell },
+  { to: "/watch", label: "Watch", icon: Watch },
   { to: "/you", label: "You", icon: User },
 ] as const;
 

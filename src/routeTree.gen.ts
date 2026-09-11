@@ -16,6 +16,7 @@ import { Route as HabitsRouteImport } from './routes/habits'
 import { Route as MoodRouteImport } from './routes/mood'
 import { Route as RemindersRouteImport } from './routes/reminders'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as WatchRouteImport } from './routes/watch'
 import { Route as YouRouteImport } from './routes/you'
 import { Route as RoutineIdRouteImport } from './routes/routine.$id'
 import { Route as RunIdRouteImport } from './routes/run.$id'
@@ -55,6 +56,11 @@ const StatsRoute = StatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WatchRoute = WatchRouteImport.update({
+  id: '/watch',
+  path: '/watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const YouRoute = YouRouteImport.update({
   id: '/you',
   path: '/you',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/mood': typeof MoodRoute
   '/reminders': typeof RemindersRoute
   '/stats': typeof StatsRoute
+  '/watch': typeof WatchRoute
   '/you': typeof YouRoute
   '/routine/$id': typeof RoutineIdRoute
   '/run/$id': typeof RunIdRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/mood': typeof MoodRoute
   '/reminders': typeof RemindersRoute
   '/stats': typeof StatsRoute
+  '/watch': typeof WatchRoute
   '/you': typeof YouRoute
   '/routine/$id': typeof RoutineIdRoute
   '/run/$id': typeof RunIdRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/mood': typeof MoodRoute
   '/reminders': typeof RemindersRoute
   '/stats': typeof StatsRoute
+  '/watch': typeof WatchRoute
   '/you': typeof YouRoute
   '/routine/$id': typeof RoutineIdRoute
   '/run/$id': typeof RunIdRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/mood'
     | '/reminders'
     | '/stats'
+    | '/watch'
     | '/you'
     | '/routine/$id'
     | '/run/$id'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/mood'
     | '/reminders'
     | '/stats'
+    | '/watch'
     | '/you'
     | '/routine/$id'
     | '/run/$id'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/mood'
     | '/reminders'
     | '/stats'
+    | '/watch'
     | '/you'
     | '/routine/$id'
     | '/run/$id'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   MoodRoute: typeof MoodRoute
   RemindersRoute: typeof RemindersRoute
   StatsRoute: typeof StatsRoute
+  WatchRoute: typeof WatchRoute
   YouRoute: typeof YouRoute
   RoutineIdRoute: typeof RoutineIdRoute
   RunIdRoute: typeof RunIdRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/watch': {
+      id: '/watch'
+      path: '/watch'
+      fullPath: '/watch'
+      preLoaderRoute: typeof WatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/you': {
       id: '/you'
       path: '/you'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   MoodRoute: MoodRoute,
   RemindersRoute: RemindersRoute,
   StatsRoute: StatsRoute,
+  WatchRoute: WatchRoute,
   YouRoute: YouRoute,
   RoutineIdRoute: RoutineIdRoute,
   RunIdRoute: RunIdRoute,

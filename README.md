@@ -33,13 +33,37 @@ ForgeHealth supports real-time buddy accountability via BroadcastChannel + local
 - **Stats & mood** — Completion history, streak calendar, post-run mood check
 
 ### ForgeHealth Extensions
-- **5-tab UI** — Home (rings + plant) | Habits | Challenge | Mood | You
+- **6-tab UI** — Home (rings + plant) | Habits | Challenge | Mood | Watch | You
 - **Habit tracker** — Gym, hydration, cold shower, meditation, learning, gratitude (6 default habits)
 - **NoFap challenge** — 18+ consent, 7/30/60/90/custom duration, buddy progress, relapse log (non-shaming)
 - **XP & levels** — ~30 XP/check-in, habit bonus XP, rank progression (Beginner → Mythic)
 - **Willpower system** — Earned via habits, spent on metaphorical monster battles
 - **MoodSathi journal** — 8 moods + intensity + tags + note; recent entries view
+- **Watch / Health import** — Samsung Health ZIP import with activity rings, sleep/heart rate charts, weekly trends
 - **Dual accounts** — Soumya + Jabir seed accounts for demo; isolated storage per user
+
+## Samsung Health ZIP Import
+
+The Watch tab supports importing personal data exports from Samsung Health:
+
+### How to Export from Samsung Health
+
+1. Open **Samsung Health** app on your phone
+2. Tap **Menu (☰)** → **Settings**
+3. Scroll to **"Download personal data"**
+4. Request the export (you'll receive a notification when ready)
+5. Share the **ZIP file** to your computer
+
+### How to Import
+
+1. Open ForgeHealth → **Watch tab**
+2. **Drag & drop** the ZIP file or click to browse
+3. Data parses instantly — no server upload, stays on your device
+4. View **activity rings** (steps, calories, active minutes, distance)
+5. See **health metrics** (heart rate, sleep, stress if available)
+6. Browse **weekly charts** for steps and sleep trends
+
+The parser supports various Samsung Health CSV formats and column naming variations. A **sample ZIP** is included at `public/fixtures/sample-samsung-health.zip` for testing.
 
 ## Tech Stack
 

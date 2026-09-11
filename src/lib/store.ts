@@ -22,6 +22,7 @@ import type {
   GratitudeEntry,
   MonsterBoss,
 } from "@/lib/types";
+import type { WatchImportResult } from "@/lib/samsung-health-import";
 import { DEFAULT_SETTINGS, DEFAULT_HABITS } from "@/lib/types";
 import { TEMPLATES } from "@/lib/templates";
 import { todayKey, uid } from "@/lib/utils";
@@ -46,6 +47,8 @@ type PersistShape = {
   moodEntries: MoodEntry[];
   gratitudeEntries: GratitudeEntry[];
   monster: MonsterBoss | null;
+  // Watch import
+  watchImport: WatchImportResult | null;
 };
 
 type AppState = PersistShape & {
@@ -95,6 +98,9 @@ type AppState = PersistShape & {
   addGratitude: (text: string) => void;
   spawnMonster: () => void;
   damageMonster: (damage: number) => void;
+  // Watch import actions
+  setWatchImport: (data: WatchImportResult) => void;
+  clearWatchImport: () => void;
 };
 
 function checkKey(date: string, routineId: string) {
@@ -163,6 +169,7 @@ export const useAppStore = create<AppState>()(
       moodEntries: [],
       gratitudeEntries: [],
       monster: null,
+      watchImport: null,
 
       setHydrated: () => set({ hydrated: true }),
 
@@ -776,6 +783,14 @@ export const useAppStore = create<AppState>()(
           return { monster: { ...s.monster, currentHp: newHp } };
         });
       },
+
+      setWatchImport: (data) => {
+        set({ watchImport: data });
+      },
+
+      clearWatchImport: () => {
+        set({ watchImport: null });
+      },
     }),
     {
       name: "forgehealth-v1",
@@ -798,6 +813,7 @@ export const useAppStore = create<AppState>()(
         moodEntries: s.moodEntries,
         gratitudeEntries: s.gratitudeEntries,
         monster: s.monster,
+        watchImport: s.watchImport,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<PersistShape>;
