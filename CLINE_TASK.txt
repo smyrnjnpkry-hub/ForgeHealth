@@ -1,0 +1,11 @@
+Read BUILD_BRIEF.md and reference/moodsathi/. Implement ForgeHealth end-to-end on this Dayring v2 codebase.
+
+Priority order:
+1) Extend store/types for accounts (Soumya + Jabir), challenge, XP/willpower, habits, mood entries, monster boss HP.
+2) New bottom tabs: Home | Habits | Challenge | Mood | You — Samsung Health style rings/cards; keep Dayring plant/routines accessible from Home.
+3) Challenge flow: agreement → pick duration (7/30/60/90/custom) → start; buddy dual progress (BroadcastChannel+localStorage); relapse; ranks/XP like NoFap Ranked; willpower+monster like Addicted.
+4) Habits checklist feeding XP; meditation timer; gratitude journal.
+5) MoodSathi features under Mood tab.
+6) Wire reminders; update README with dual-tab demo for Soumya vs Jabir.
+
+Do not copy Addicted/NoFap Ranked branding. Keep tasteful wellness tone. Run tsc and fix errors. Work iteratively until the app is runnable with npm run dev.

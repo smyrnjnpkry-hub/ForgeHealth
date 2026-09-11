@@ -1,0 +1,16 @@
+{
+  "name": "MoodSathi — आपका मूड साथी",
+  "short_name": "MoodSathi",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#1b3a2f",
+  "description": "Private mood companion with journal, insights and ZIP backup.",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

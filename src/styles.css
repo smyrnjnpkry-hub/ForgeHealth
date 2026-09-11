@@ -1,0 +1,207 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-bg: #fffdf6;
+  --color-surface: #ffffff;
+  --color-sunken: #efe8d6;
+  --color-fg: #1a1a24;
+  --color-muted: #6e6e7a;
+  --color-faint: #9a9aa6;
+  --color-sun: #f5c400;
+  --color-sun-ink: #1a1a24;
+  --color-mint: #2f9e6b;
+  --color-sky: #4d8fe8;
+  --color-coral: #e86a4d;
+  --color-leaf: #3fa35a;
+  --color-border: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  --color-ring: #f5c400;
+
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.75rem;
+
+  --shadow-card:
+    0 0 0 1px color-mix(in oklab, var(--color-fg) 6%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--color-fg) 6%, transparent),
+    0 8px 24px -12px color-mix(in oklab, var(--color-fg) 10%, transparent);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.dark {
+  --color-bg: #121214;
+  --color-surface: #1c1c20;
+  --color-sunken: #0e0e10;
+  --color-fg: #f3f3f6;
+  --color-muted: #a0a0ab;
+  --color-faint: #71717a;
+  --color-sun: #f5c400;
+  --color-sun-ink: #1a1a24;
+  --color-mint: #4ecf8e;
+  --color-sky: #6aa6f5;
+  --color-coral: #f0846c;
+  --color-leaf: #62c57a;
+  --color-border: color-mix(in oklab, var(--color-fg) 12%, transparent);
+  --shadow-card: 0 0 0 1px color-mix(in oklab, var(--color-fg) 10%, transparent);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+    width: 100%;
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* —— Dayring v2 micro-interactions —— */
+@keyframes plant-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  70% {
+    transform: scale(0.98);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120px) rotate(240deg);
+    opacity: 0;
+  }
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ring-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px color-mix(in oklab, var(--color-sun) 55%, transparent));
+  }
+}
+
+@keyframes celebrate-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-plant-pulse {
+  animation: plant-pulse 1.1s var(--ease-out-soft) 2;
+  transform-origin: center bottom;
+}
+
+.animate-step-in {
+  animation: step-in 0.35s var(--ease-out-soft) both;
+}
+
+.animate-ring-glow {
+  animation: ring-glow 1.6s ease-in-out infinite;
+}
+
+.animate-celebrate-pop {
+  animation: celebrate-pop 0.5s var(--ease-out-soft) both;
+}
+
+.confetti-burst {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.confetti-burst span {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confetti-fall 1.1s var(--ease-out-soft) forwards;
+}
+
+/* Stronger CTA contrast on sun buttons in both themes */
+.bg-sun {
+  color: var(--color-sun-ink);
+}
